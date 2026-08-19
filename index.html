@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致最特别的你</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'SimSun', serif;
+            background: linear-gradient(135deg, #1a0000 0%, #2d0a0a 30%, #1a0015 70%, #0d001a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite alternate;
+            opacity: 0;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 飘落的花瓣 */
+        .petal {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(ellipse at center, #ff6b9d 0%, #c44569 100%);
+            border-radius: 50% 0 50% 50%;
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) translateX(0px);
+                opacity: 0.8;
+            }
+            25% {
+                transform: translateY(25vh) rotate(90deg) translateX(30px);
+            }
+            50% {
+                transform: translateY(50vh) rotate(180deg) translateX(-20px);
+            }
+            75% {
+                transform: translateY(75vh) rotate(270deg) translateX(25px);
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg) translateX(-10px);
+                opacity: 0.2;
+            }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 标题区域 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 1.5s ease-out;
+        }
+
+        .header h1 {
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ffd1e8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+            color: rgba(255, 182, 193, 0.8);
+            font-style: italic;
+            letter-spacing: 2px;
+        }
+
+        /* 照片展示区域 */
+        .photo-frame {
+            position: relative;
+            width: clamp(280px, 70vw, 550px);
+            height: clamp(280px, 70vw, 550px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 
+                0 0 30px rgba(255, 105, 180, 0.4),
+                0 0 60px rgba(255, 105, 180, 0.2),
+                inset 0 0 30px rgba(255, 105, 180, 0.1);
+            border: 3px solid rgba(255, 182, 193, 0.3);
+            animation: fadeIn 2s ease-out, glow 3s ease-in-out infinite alternate;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 30px rgba(255, 105, 180, 0.4), 0 0 60px rgba(255, 105, 180, 0.2); }
+            100% { box-shadow: 0 0 50px rgba(255, 105, 180, 0.6), 0 0 100px rgba(255, 105, 180, 0.3); }
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.8s ease-in-out, transform 0.5s ease;
+            opacity: 1;
+        }
+
+        .photo-frame img.fade-out {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+        /* 照片计数器 */
+        .counter {
+            margin-top: 20px;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            color: rgba(255, 182, 193, 0.7);
+            letter-spacing: 3px;
+        }
+
+        /* 表白文字 */
+        .love-text {
+            margin-top: 25px;
+            text-align: center;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: rgba(255, 220, 230, 0.9);
+            max-width: 600px;
+            line-height: 1.8;
+            letter-spacing: 1px;
+            transition: opacity 0.5s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 点击提示 */
+        .hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            color: rgba(255, 182, 193, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+            letter-spacing: 2px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        /* 爱心点击效果 */
+        .heart-click {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+            font-size: 24px;
+            animation: heartFloat 1.5s ease-out forwards;
+        }
+
+        @keyframes heartFloat {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2) rotate(15deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0.8) rotate(-10deg) translateY(-80px);
+                opacity: 0;
+            }
+        }
+
+        /* 最终表白页 */
+        .final-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #2d0a1e 0%, #1a0010 50%, #0d0008 100%);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            animation: fadeIn 2s ease;
+        }
+
+        .final-page.show {
+            display: flex;
+        }
+
+        .final-page .big-heart {
+            font-size: clamp(80px, 20vw, 150px);
+            animation: heartbeat 1.2s ease-in-out infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+        }
+
+        .final-page .final-text {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            background: linear-gradient(135deg, #ff9a9e 0%, #ff6b9d 50%, #ffc3d6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+        }
+
+        .final-page .final-sub {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: rgba(255, 182, 193, 0.8);
+            text-align: center;
+            letter-spacing: 3px;
+            font-style: italic;
+        }
+
+        .final-page .restart-btn {
+            margin-top: 40px;
+            padding: 12px 35px;
+            border: 2px solid rgba(255, 182, 193, 0.5);
+            border-radius: 30px;
+            background: transparent;
+            color: rgba(255, 182, 193, 0.8);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+        }
+
+        .final-page .restart-btn:hover {
+            background: rgba(255, 105, 180, 0.2);
+            border-color: rgba(255, 182, 193, 0.8);
+            color: #fff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 音乐按钮 */
+        .music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 182, 193, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+        }
+
+        .music-btn:hover {
+            background: rgba(255, 105, 180, 0.3);
+            border-color: rgba(255, 182, 193, 0.8);
+        }
+
+        .music-btn.playing {
+            animation: spin 3s linear infinite;
+        }
+
+        .music-btn.paused {
+            animation: none;
+            opacity: 0.5;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .photo-frame {
+                width: 85vw;
+                height: 85vw;
+                border-radius: 15px;
+            }
+
+            .header {
+                margin-bottom: 20px;
+            }
+
+            .love-text {
+                padding: 0 15px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .photo-frame {
+                width: 60vw;
+                height: 60vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景音乐 -->
+    <audio id="bgm" loop preload="auto">
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 音乐控制按钮 -->
+    <div class="music-btn paused" id="musicBtn" title="播放/暂停音乐">🎵</div>
+
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <div class="header">
+            <h1>遇见你 是最美的意外</h1>
+            <p class="subtitle">—— 每一刻，都想和你在一起 ——</p>
+        </div>
+
+        <div class="photo-frame" id="photoFrame">
+            <img id="photo" src="" alt="我们的照片">
+        </div>
+
+        <div class="counter" id="counter"></div>
+
+        <div class="love-text" id="loveText"></div>
+    </div>
+
+    <div class="hint">轻触屏幕，翻阅我们的故事 ❤</div>
+
+    <!-- 最终表白页 -->
+    <div class="final-page" id="finalPage">
+        <div class="big-heart">💕</div>
+        <div class="final-text">我喜欢你</div>
+        <div class="final-sub">从遇见你的那一刻起，我的心就只属于你</div>
+        <button class="restart-btn" id="restartBtn">再看一遍</button>
+    </div>
+
+    <script>
+        // 照片列表
+        const photos = [
+            '微信图片_20260819193538_7_56.jpg',
+            '微信图片_20260819193538_8_56.jpg',
+            '微信图片_20260819193538_9_56.jpg',
+            '微信图片_20260819193538_10_56.jpg',
+            '微信图片_20260819193538_11_56.jpg',
+            '微信图片_20260819193538_12_56.jpg'
+        ];
+
+        // 每张照片对应的表白文字
+        const loveTexts = [
+            '第一次见到你，世界突然变得好温柔 ✨',
+            '你的笑容，是我见过最美的风景 🌸',
+            '想牵你的手，走过每一个春夏秋冬 🍂',
+            '有你的日子，连空气都是甜的 🍬',
+            '你是我所有美好愿望的答案 🌙',
+            '余生很长，我只想和你一起走 💫'
+        ];
+
+        let currentIndex = 0;
+        const photoEl = document.getElementById('photo');
+        const loveTextEl = document.getElementById('loveText');
+        const counterEl = document.getElementById('counter');
+        const finalPage = document.getElementById('finalPage');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // 初始化第一张照片
+        photoEl.src = photos[0];
+        loveTextEl.textContent = loveTexts[0];
+        counterEl.textContent = `${1} / ${photos.length}`;
+
+        // 创建星空
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 1) + 's');
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.width = (Math.random() * 2 + 1) + 'px';
+                star.style.height = star.style.width;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 创建飘落花瓣
+        function createPetals() {
+            const colors = ['#ff6b9d', '#c44569', '#ff9a9e', '#fecfef', '#ffb6c1'];
+            setInterval(() => {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.left = Math.random() * 100 + '%';
+                petal.style.background = `radial-gradient(ellipse at center, ${colors[Math.floor(Math.random() * colors.length)]} 0%, ${colors[Math.floor(Math.random() * colors.length)]} 100%)`;
+                petal.style.animationDuration = (Math.random() * 5 + 6) + 's';
+                petal.style.width = (Math.random() * 8 + 8) + 'px';
+                petal.style.height = petal.style.width;
+                petal.style.opacity = Math.random() * 0.5 + 0.3;
+                document.body.appendChild(petal);
+
+                setTimeout(() => petal.remove(), 11000);
+            }, 800);
+        }
+
+        // 切换照片
+        function nextPhoto() {
+            if (currentIndex >= photos.length - 1) {
+                finalPage.classList.add('show');
+                return;
+            }
+
+            photoEl.classList.add('fade-out');
+            loveTextEl.style.opacity = '0';
+
+            setTimeout(() => {
+                currentIndex++;
+                photoEl.src = photos[currentIndex];
+                loveTextEl.textContent = loveTexts[currentIndex];
+                counterEl.textContent = `${currentIndex + 1} / ${photos.length}`;
+                photoEl.classList.remove('fade-out');
+                loveTextEl.style.opacity = '1';
+            }, 600);
+        }
+
+        // 点击爱心效果
+        function createHeart(x, y) {
+            const hearts = ['❤', '💕', '💗', '💖', '💘'];
+            const heart = document.createElement('div');
+            heart.className = 'heart-click';
+            heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1500);
+        }
+
+        // 事件监听
+        document.body.addEventListener('click', (e) => {
+            if (e.target === restartBtn || finalPage.contains(e.target)) return;
+            createHeart(e.clientX, e.clientY);
+            nextPhoto();
+        });
+
+        restartBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentIndex = 0;
+            photoEl.src = photos[0];
+            loveTextEl.textContent = loveTexts[0];
+            counterEl.textContent = `1 / ${photos.length}`;
+            finalPage.classList.remove('show');
+        });
+
+        // 初始化
+        createStars();
+        createPetals();
+
+        // 背景音乐控制
+        const bgm = document.getElementById('bgm');
+        const musicBtn = document.getElementById('musicBtn');
+        let musicStarted = false;
+
+        bgm.volume = 0.5;
+
+        // 音乐按钮点击切换播放/暂停
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (bgm.paused) {
+                bgm.play().then(() => {
+                    musicBtn.classList.remove('paused');
+                    musicBtn.classList.add('playing');
+                }).catch(() => {});
+            } else {
+                bgm.pause();
+                musicBtn.classList.remove('playing');
+                musicBtn.classList.add('paused');
+            }
+        });
+
+        // 首次点击页面时自动开始播放音乐
+        document.body.addEventListener('click', function startMusic() {
+            if (!musicStarted) {
+                musicStarted = true;
+                bgm.play().then(() => {
+                    musicBtn.classList.remove('paused');
+                    musicBtn.classList.add('playing');
+                }).catch(() => {});
+            }
+        }, { once: false });
+    </script>
+</body>
+</html>
